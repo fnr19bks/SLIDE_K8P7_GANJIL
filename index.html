@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Storytelling & Presentasi — Informatika Kelas VIII</title>
+<style>
+  :root{
+    --bg:#080B22;
+    --bg2:#131A45;
+    --card:rgba(255,255,255,.07);
+    --line:rgba(120,220,255,.26);
+    --accent:#22E0C8;      /* mint */
+    --accent2:#FFB347;     /* amber */
+    --accent3:#FF7B72;     /* coral */
+    --purple:#A78BFA;
+    --text:#EDF3FF;
+    --muted:#A9BAD8;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;overflow:hidden;background:#04071A;
+    font-family:"Segoe UI",Inter,system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+    color:var(--text);-webkit-font-smoothing:antialiased}
+
+  #stage{
+    position:absolute;top:50%;left:50%;
+    width:1280px;height:720px;
+    transform-origin:center center;
+    background:
+      radial-gradient(900px 520px at 10% -10%, #1E2A6E 0%, transparent 60%),
+      radial-gradient(820px 520px at 108% 112%, #0E3B5C 0%, transparent 62%),
+      linear-gradient(160deg,var(--bg) 0%, var(--bg2) 100%);
+    border-radius:18px;overflow:hidden;
+    box-shadow:0 30px 90px rgba(0,0,0,.7);
+  }
+  /* grid halus ala dashboard data */
+  #stage::before{
+    content:"";position:absolute;inset:0;pointer-events:none;opacity:.16;
+    background-image:
+      linear-gradient(rgba(120,220,255,.14) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(120,220,255,.14) 1px, transparent 1px);
+    background-size:64px 64px;
+    mask-image:radial-gradient(circle at 70% 40%, #000 0%, transparent 78%);
+    -webkit-mask-image:radial-gradient(circle at 70% 40%, #000 0%, transparent 78%);
+  }
+  #stage::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(115deg,rgba(34,224,200,.07),transparent 42%,rgba(255,179,71,.06));
+  }
+
+  .slide{
+    position:absolute;inset:0;padding:44px 60px 52px;
+    opacity:0;visibility:hidden;
+    transform:translateY(26px) scale(.985);
+    transition:opacity .5s ease, transform .55s cubic-bezier(.22,.9,.3,1), visibility .5s;
+    display:flex;flex-direction:column;gap:15px;
+  }
+  .slide.active{opacity:1;visibility:visible;transform:none}
+
+  /* ---------- TYPO ---------- */
+  .eyebrow{
+    font-size:14px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--accent);font-weight:800;
+  }
+  h1.title{font-size:44px;line-height:1.1;font-weight:800;letter-spacing:-.5px}
+  h2.title{font-size:38px;line-height:1.12;font-weight:800;letter-spacing:-.4px}
+  .sub{font-size:21px;color:var(--muted)}
+  .lead{font-size:24px;line-height:1.45;color:#D6E4FA;max-width:1080px}
+  .hl{color:var(--accent2)}
+  .hl2{color:var(--accent)}
+  .hl3{color:var(--accent3)}
+  .hl4{color:var(--purple)}
+
+  ul.bullets{list-style:none;display:flex;flex-direction:column;gap:12px;margin-top:2px}
+  ul.bullets li{
+    font-size:25px;line-height:1.32;padding-left:44px;position:relative;
+  }
+  ul.bullets li::before{
+    content:"";position:absolute;left:8px;top:12px;width:16px;height:16px;
+    border-radius:5px;background:linear-gradient(135deg,var(--accent),#0ea5b7);
+    box-shadow:0 0 14px rgba(34,224,200,.55);
+  }
+  ul.bullets.gold li::before{background:linear-gradient(135deg,var(--accent2),#d97706);box-shadow:0 0 14px rgba(255,179,71,.5)}
+  ul.bullets.coral li::before{background:linear-gradient(135deg,var(--accent3),#c0392b);box-shadow:0 0 14px rgba(255,123,114,.5)}
+
+  ol.steps{list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:11px}
+  ol.steps li{
+    counter-increment:s;font-size:24px;line-height:1.32;padding-left:56px;position:relative;
+  }
+  ol.steps li::before{
+    content:counter(s);position:absolute;left:0;top:-2px;width:36px;height:36px;
+    display:grid;place-items:center;border-radius:50%;
+    background:rgba(34,224,200,.15);border:2px solid var(--accent);
+    color:var(--accent);font-weight:800;font-size:18px;
+  }
+
+  /* ---------- CARDS ---------- */
+  .grid{display:grid;gap:15px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:17px 19px;backdrop-filter:blur(4px);
+  }
+  .card h3{font-size:22px;font-weight:800;margin-bottom:6px;color:var(--accent)}
+  .card p{font-size:18px;line-height:1.4;color:#CBDFF2}
+  .card.gold h3{color:var(--accent2)}
+  .card.gold{border-color:rgba(255,179,71,.4)}
+  .card.coral h3{color:var(--accent3)}
+  .card.coral{border-color:rgba(255,123,114,.4)}
+  .card.violet h3{color:var(--purple)}
+  .card.violet{border-color:rgba(167,139,250,.42)}
+
+  .chips{display:flex;gap:10px;flex-wrap:wrap}
+  .chip{
+    font-size:16px;font-weight:700;padding:8px 16px;border-radius:999px;
+    background:rgba(34,224,200,.12);border:1px solid rgba(34,224,200,.45);color:#B6F5EC;
+  }
+  .chip.gold{background:rgba(255,179,71,.12);border-color:rgba(255,179,71,.5);color:#FFD79A}
+
+  /* ---------- CODE / FORMULA BOX ---------- */
+  .code{
+    font-family:"Consolas","Fira Code","Courier New",monospace;
+    background:rgba(0,0,0,.42);border-left:5px solid var(--accent);
+    border-radius:12px;padding:16px 20px;font-size:21px;line-height:1.5;
+    color:#CFEAF9;white-space:pre-wrap;
+  }
+  .code.sm{font-size:18px;line-height:1.45}
+  .code b{color:var(--accent2)}
+
+  /* ---------- TIMELINE ---------- */
+  .timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
+  .tl{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px 14px;
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .tl .num{
+    width:38px;height:38px;border-radius:50%;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--accent),#0891b2);color:#04121F;font-weight:900;font-size:19px;
+  }
+  .tl.g .num{background:linear-gradient(135deg,var(--accent2),#d97706)}
+  .tl.c .num{background:linear-gradient(135deg,var(--accent3),#c0392b)}
+  .tl.v .num{background:linear-gradient(135deg,var(--purple),#6d28d9);color:#fff}
+  .tl b{font-size:19px;line-height:1.2}
+  .tl p{font-size:15px;color:var(--muted);line-height:1.34}
+
+  /* ---------- CHART DEMO ---------- */
+  .chartrow{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .chartbox{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:14px 16px;display:flex;flex-direction:column;align-items:center;gap:8px;
+  }
+  .chartbox h4{font-size:19px;font-weight:800;color:var(--accent)}
+  .chartbox span{font-size:15px;color:var(--muted);text-align:center;line-height:1.3}
+  .chartbox svg{width:150px;height:110px}
+
+  /* ---------- TABLE ---------- */
+  table{width:100%;border-collapse:collapse;font-size:16px;border-radius:12px;overflow:hidden}
+  th,td{padding:8px 11px;text-align:left;border-bottom:1px solid rgba(120,220,255,.18);vertical-align:top}
+  th{background:rgba(34,224,200,.16);color:#BFF3FB;font-size:15px;letter-spacing:.03em}
+  td:first-child{font-weight:700;color:#EDF3FF;white-space:nowrap}
+  tr:nth-child(even) td{background:rgba(255,255,255,.03)}
+
+  /* ---------- FRAGMENTS ---------- */
+  .f{opacity:0;transform:translateY(16px);transition:opacity .45s ease, transform .45s cubic-bezier(.22,.9,.3,1)}
+  .f.show{opacity:1;transform:none}
+
+  /* ---------- HUD ---------- */
+  #hud{
+    position:fixed;left:0;right:0;bottom:14px;display:flex;align-items:center;
+    justify-content:center;gap:14px;z-index:50;
+  }
+  #hud button{
+    width:46px;height:46px;border-radius:50%;border:1px solid rgba(34,224,200,.5);
+    background:rgba(8,11,34,.88);color:var(--accent);font-size:18px;cursor:pointer;
+    display:grid;place-items:center;transition:.2s;
+  }
+  #hud button:hover{background:rgba(34,224,200,.2);transform:translateY(-2px)}
+  #counter{font-size:14px;color:#8FB0CE;font-weight:700;letter-spacing:.1em;min-width:70px;text-align:center}
+  #bar{position:fixed;left:0;bottom:0;height:4px;width:0%;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    transition:width .35s ease;z-index:60}
+  #hint{
+    position:fixed;top:14px;right:18px;font-size:13px;color:#7E9EBD;z-index:50;
+    letter-spacing:.06em;transition:opacity .6s;
+  }
+  /* ---------- COVER ---------- */
+  .cover{justify-content:center;gap:20px;padding-left:76px}
+  .cover h1{font-size:60px;line-height:1.06;font-weight:900;letter-spacing:-1.2px}
+  .grad{background:linear-gradient(100deg,#22E0C8 8%,#FFB347 55%,#FF7B72 95%);
+        -webkit-background-clip:text;background-clip:text;color:transparent}
+  .cover .sub{font-size:23px}
+  .rule{width:110px;height:6px;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .quote{font-size:30px;font-weight:800;line-height:1.3;color:#EDF3FF}
+</style>
+</head>
+<body>
+
+<div id="stage">
+
+  <!-- ============ 1 · COVER ============ -->
+  <section class="slide cover active">
+    <p class="eyebrow f">SMP NEGERI 19 KOTA BEKASI · TIM MGMP INFORMATIKA</p>
+    <div class="rule f"></div>
+    <h1 class="f">Data Storytelling:<br><span class="grad">Dari Angka Jadi Cerita</span></h1>
+    <p class="sub f">Informatika · Kelas VIII / Fase D · Elemen: Analisis Data</p>
+    <div class="chips f">
+      <span class="chip">Analisis Data</span>
+      <span class="chip gold">Problem Based Learning</span>
+      <span class="chip">Deep Learningg</span>
+    </div>
+  </section>
+
+  <!-- ============ 2 · TUJUAN ============ -->
+  <section class="slide">
+    <p class="eyebrow">Tujuan Pembelajaran</p>
+    <h2 class="title">Apa yang Akan Kita Capai?</h2>
+    <ul class="bullets">
+      <li class="f">Mengubah angka menjadi cerita bermakna</li>
+      <li class="f">Memilih visual data yang tepat sasaran</li>
+      <li class="f">Menyusun alur: situasi → temuan → rekomendasi</li>
+      <li class="f">Membuat infografis, slide, atau video singkat</li>
+    </ul>
+    <p class="lead f">Artinya: <span class="hl">datamu tidak hanya benar,</span> tapi juga <span class="hl2">mudah dipahami dan diingat.</span></p>
+  </section>
+
+  <!-- ============ 3 · APERSEPSI ============ -->
+  <section class="slide">
+    <p class="eyebrow">Apersepsi · Pemantik</p>
+    <h2 class="title">Dua Kalimat, Data yang Sama</h2>
+    <div class="grid g2">
+      <div class="card coral f">
+        <h3>😴 Versi Datar</h3>
+        <p>"70% teman sekelas tidur di atas jam 11 malam."</p>
+      </div>
+      <div class="card gold f">
+        <h3>🔥 Versi Cerita</h3>
+        <p>"7 dari 10 teman kalian begadang tiap malam sekolah — pantas kelas sering mengantuk jam pertama!"</p>
+      </div>
+    </div>
+    <p class="lead f">❓ <b>Mana yang lebih menempel di ingatan? Kenapa?</b></p>
+  </section>
+
+  <!-- ============ 4 · DEFINISI ============ -->
+  <section class="slide">
+    <p class="eyebrow">Definisi</p>
+    <h2 class="title">Apa Itu Data Storytelling?</h2>
+    <p class="lead f">Cara menyampaikan hasil analisis data dengan menggabungkan <span class="hl2">tiga unsur</span> sekaligus — bukan sekadar menumpuk angka.</p>
+    <div class="grid g3">
+      <div class="card f"><h3>📊 Data</h3><p>Angka atau fakta yang sudah diolah dan terbukti benar.</p></div>
+      <div class="card gold f"><h3>📖 Narasi</h3><p>Cerita yang memberi makna: apa artinya, kenapa penting.</p></div>
+      <div class="card coral f"><h3>🎨 Visual</h3><p>Grafik atau ilustrasi agar orang "melihat" ceritanya.</p></div>
+    </div>
+    <p class="sub f">Ketiganya harus jalan bersama — satu saja hilang, pesannya pincang.</p>
+  </section>
+
+  <!-- ============ 5 · 3 UNSUR RUSAK ============ -->
+  <section class="slide">
+    <p class="eyebrow">Kalau Salah Satu Hilang…</p>
+    <h2 class="title">Kenapa Harus Lengkap?</h2>
+    <div class="grid g3">
+      <div class="card f"><h3>Data tanpa narasi</h3><p>Membosankan. Orang lihat tabel, lalu lupa.</p></div>
+      <div class="card f"><h3>Narasi tanpa data</h3><p>Terasa mengada-ada. Tidak bisa dipercaya.</p></div>
+      <div class="card f"><h3>Visual tanpa keduanya</h3><p>Cuma hiasan kosong. Cantik, tapi tak bermakna.</p></div>
+    </div>
+    <p class="lead f">💡 Ingat rumusnya: <span class="hl2">Data + Narasi + Visual = Cerita yang Menggerakkan.</span></p>
+  </section>
+
+  <!-- ============ 6 · COMPUTATIONAL THINKING ============ -->
+  <section class="slide">
+    <p class="eyebrow">Berpikir Komputasional</p>
+    <h2 class="title">4 Langkah Berpikir di Balik Cerita</h2>
+    <div class="grid g4">
+      <div class="card f"><h3>Dekomposisi</h3><p>Pecah data besar → per hari, per kelas, per kategori.</p></div>
+      <div class="card gold f"><h3>Pengenalan Pola</h3><p>Cari kecenderungan, misal nilai turun tiap Jumat.</p></div>
+      <div class="card coral f"><h3>Abstraksi</h3><p>Ambil info penting, buang detail yang tak perlu.</p></div>
+      <div class="card violet f"><h3>Algoritma</h3><p>Susun langkah runtut: olah → temukan pola → tampilkan.</p></div>
+    </div>
+    <p class="sub f">Menyusun data storytelling = latihan berpikir komputasional secara nyata.</p>
+  </section>
+
+  <!-- ============ 7 · PRINSIP ============ -->
+  <section class="slide">
+    <p class="eyebrow">Prinsip Presentasi Data</p>
+    <h2 class="title">5 Aturan Supaya Pesanmu Nyangkut</h2>
+    <ul class="bullets">
+      <li class="f"><b>Satu pesan utama</b> — jangan semua temuan sekaligus</li>
+      <li class="f"><b>Visual tepat sasaran</b> — sesuai jenis datanya</li>
+      <li class="f"><b>Judul &amp; label jelas</b> — paham tanpa penjelasan tambahan</li>
+      <li class="f"><b>Desain mendukung</b> — bukan mengalihkan perhatian</li>
+      <li class="f"><b>Alur runtut</b> — situasi → temuan → makna → ajakan</li>
+    </ul>
+  </section>
+
+  <!-- ============ 8 · JENIS VISUAL ============ -->
+  <section class="slide">
+    <p class="eyebrow">Pilih Visual yang Tepat</p>
+    <h2 class="title">Tiga Grafik, Tiga Tugas</h2>
+    <div class="chartrow">
+      <div class="chartbox f">
+        <svg viewBox="0 0 150 110">
+          <rect x="16" y="55" width="22" height="45" rx="4" fill="#22E0C8"/>
+          <rect x="52" y="30" width="22" height="70" rx="4" fill="#FFB347"/>
+          <rect x="88" y="68" width="22" height="32" rx="4" fill="#FF7B72"/>
+          <rect x="124" y="18" width="22" height="82" rx="4" fill="#A78BFA"/>
+          <line x1="8" y1="100" x2="146" y2="100" stroke="rgba(120,220,255,.4)" stroke-width="2"/>
+        </svg>
+        <h4>Grafik Batang</h4>
+        <span>Membandingkan jumlah antar kategori</span>
+      </div>
+      <div class="chartbox f">
+        <svg viewBox="0 0 150 110">
+          <circle cx="75" cy="55" r="40" fill="none" stroke="#1E2A6E" stroke-width="22"/>
+          <circle cx="75" cy="55" r="40" fill="none" stroke="#22E0C8" stroke-width="22"
+                  stroke-dasharray="150 251" transform="rotate(-90 75 55)"/>
+          <circle cx="75" cy="55" r="40" fill="none" stroke="#FFB347" stroke-width="22"
+                  stroke-dasharray="75 251" stroke-dashoffset="-150" transform="rotate(-90 75 55)"/>
+          <circle cx="75" cy="55" r="40" fill="none" stroke="#FF7B72" stroke-width="22"
+                  stroke-dasharray="26 251" stroke-dashoffset="-225" transform="rotate(-90 75 55)"/>
+        </svg>
+        <h4>Diagram Lingkaran</h4>
+        <span>Menunjukkan proporsi / persentase</span>
+      </div>
+      <div class="chartbox f">
+        <svg viewBox="0 0 150 110">
+          <polyline points="16,85 48,62 80,70 112,34 140,22"
+                    fill="none" stroke="#22E0C8" stroke-width="4"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="16" cy="85" r="5" fill="#FFB347"/>
+          <circle cx="48" cy="62" r="5" fill="#FFB347"/>
+          <circle cx="80" cy="70" r="5" fill="#FFB347"/>
+          <circle cx="112" cy="34" r="5" fill="#FFB347"/>
+          <circle cx="140" cy="22" r="5" fill="#FFB347"/>
+          <line x1="8" y1="100" x2="146" y2="100" stroke="rgba(120,220,255,.4)" stroke-width="2"/>
+        </svg>
+        <h4>Grafik Garis</h4>
+        <span>Menunjukkan tren / perubahan waktu</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 9 · ALUR CERITA ============ -->
+  <section class="slide">
+    <p class="eyebrow">Struktur Cerita</p>
+    <h2 class="title">Alur 4 Tahap Data Storytelling</h2>
+    <div class="timeline">
+      <div class="tl f"><div class="num">1</div><b>Situasi</b><p>Konteks awal: "Kami mengamati kebiasaan belajar kelas 8…"</p></div>
+      <div class="tl g f"><div class="num">2</div><b>Temuan</b><p>Angka kuncinya: apa yang paling mencolok dari data.</p></div>
+      <div class="tl c f"><div class="num">3</div><b>Makna</b><p>Kenapa itu penting? Apa dampaknya bagi kita?</p></div>
+      <div class="tl v f"><div class="num">4</div><b>Rekomendasi</b><p>Ajakan konkret: "Ayo mulai tidur sebelum jam 11."</p></div>
+    </div>
+    <p class="sub f">Alur ini membuat audiens dibawa dari <b>kenyataan</b> menuju <b>tindakan</b>.</p>
+  </section>
+
+  <!-- ============ 10 · LANGKAH PRAKTIS ============ -->
+  <section class="slide">
+    <p class="eyebrow">Langkah Praktis</p>
+    <h2 class="title">Dari Data ke Cerita: 7 Langkah</h2>
+    <ol class="steps">
+      <li class="f">Pilih dataset (kehadiran / kebiasaan belajar)</li>
+      <li class="f">Cari temuan paling menarik</li>
+      <li class="f">Tentukan <b>satu</b> pesan utama</li>
+      <li class="f">Pilih format: infografis, slide, atau video</li>
+      <li class="f">Susun narasi: situasi → temuan → makna → rekomendasi</li>
+      <li class="f">Buat visual dengan judul dan label jelas</li>
+      <li class="f">Latihan menyampaikan, lalu tampilkan</li>
+    </ol>
+  </section>
+
+  <!-- ============ 11 · CONTOH KONKRET ============ -->
+  <section class="slide">
+    <p class="eyebrow">Contoh Konkret</p>
+    <h2 class="title">Data Sampah Sekolah → Cerita</h2>
+    <div class="code sm f">
+SITUASI   : Selama seminggu, kami mencatat sampah di kantin.
+TEMUAN    : 62% sampah adalah <b>kemasan plastik minuman</b>.
+MAKNA     : Setara ± 300 botol per minggu dari satu sekolah.
+REKOMENDASI: Bawa <b>tumbler</b> sendiri mulai Senin depan.
+    </div>
+    <p class="lead f">Perhatikan: satu temuan, satu makna, <span class="hl">satu ajakan.</span> Tidak bertele-tele.</p>
+  </section>
+
+  <!-- ============ 12 · PROYEK MINI ============ -->
+  <section class="slide">
+    <p class="eyebrow">Proyek Mini · Problem Based Learning</p>
+    <h2 class="title">Tugas Kalian</h2>
+    <div class="grid g2">
+      <div class="card f">
+        <h3>Pilih Produk</h3>
+        <p>Infografis · Slide presentasi · Video singkat (30–60 detik)</p>
+      </div>
+      <div class="card gold f">
+        <h3>Bentuk Kelompok</h3>
+        <p>Individu atau kelompok kecil 2–3 orang.</p>
+      </div>
+      <div class="card coral f">
+        <h3>Wajib Ada</h3>
+        <p>Temuan utama + minimal 1 visual data + 1 kalimat rekomendasi.</p>
+      </div>
+      <div class="card violet f">
+        <h3>Waktu</h3>
+        <p>1–2 pertemuan. Boleh lanjutkan dataset sebelumnya.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 13 · PILIH DATASET ============ -->
+  <section class="slide">
+    <p class="eyebrow">Aktivitas Kelompok · 15 Menit</p>
+    <h2 class="title">Pilih Salah Satu Topik</h2>
+    <div class="grid g2">
+      <div class="card f"><h3>📱 Penggunaan Gawai</h3><p>Berapa jam sehari? Untuk apa saja?</p></div>
+      <div class="card f"><h3>🗑️ Sampah Sekolah</h3><p>Jenis, jumlah, dan lokasi terbanyak.</p></div>
+      <div class="card gold f"><h3>📚 Kebiasaan Belajar</h3><p>Jam belajar, tempat, dan gangguannya.</p></div>
+      <div class="card gold f"><h3>😴 Jam Tidur</h3><p>Rata-rata tidur vs rasa kantuk di kelas.</p></div>
+    </div>
+    <p class="sub f">Diskusikan: data apa yang bisa kalian kumpulkan minggu ini?</p>
+  </section>
+
+  <!-- ============ 14 · RUBRIK ============ -->
+  <section class="slide">
+    <p class="eyebrow">Asesmen</p>
+    <h2 class="title">Rubrik Penilaian</h2>
+    <table>
+      <tr>
+        <th>Aspek</th><th>Sangat Baik (4)</th><th>Baik (3)</th><th>Cukup (2)</th><th>Perlu Bimbingan (1)</th>
+      </tr>
+      <tr>
+        <td>Pemahaman Konsep</td>
+        <td>Makna data tepat &amp; mendalam</td>
+        <td>Cukup tepat</td>
+        <td>Kurang tepat maknanya</td>
+        <td>Belum memahami makna data</td>
+      </tr>
+      <tr>
+        <td>CT / Keterampilan</td>
+        <td>Visual &amp; alur tepat, efisien</td>
+        <td>Sesuai, sedikit kurang efisien</td>
+        <td>Kurang sesuai data</td>
+        <td>Belum mampu menyusun</td>
+      </tr>
+      <tr>
+        <td>Kolaborasi / Komunikasi</td>
+        <td>Aktif, pesan sangat jelas</td>
+        <td>Baik, cukup jelas</td>
+        <td>Kurang optimal</td>
+        <td>Belum efektif</td>
+      </tr>
+      <tr>
+        <td>Kemandirian &amp; Refleksi</td>
+        <td>Mandiri, reflektif kritis</td>
+        <td>Cukup mandiri</td>
+        <td>Butuh banyak bantuan</td>
+        <td>Sangat bergantung</td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- ============ 15 · PEER FEEDBACK ============ -->
+  <section class="slide">
+    <p class="eyebrow">Saling Menilai</p>
+    <h2 class="title">Cara Memberi Umpan Balik</h2>
+    <div class="grid g3">
+      <div class="card f"><h3>1️⃣ Apresiasi</h3><p>Sebutkan satu hal yang sudah bagus dari karya temanmu.</p></div>
+      <div class="card gold f"><h3>2️⃣ Perbaikan</h3><p>Sampaikan satu bagian yang bisa diperbaiki.</p></div>
+      <div class="card coral f"><h3>3️⃣ Saran</h3><p>Beri saran konkret — bukan sekadar kritik.</p></div>
+    </div>
+    <p class="lead f">🎯 Aturan: komentari <span class="hl2">karyanya</span>, bukan <span class="hl3">orangnya.</span></p>
+  </section>
+
+  <!-- ============ 16 · CEK PEMAHAMAN ============ -->
+  <section class="slide">
+    <p class="eyebrow">Cek Pemahaman</p>
+    <h2 class="title">Kuis Kilat 🎯</h2>
+    <ol class="steps">
+      <li class="f">Sebutkan <b>tiga unsur</b> data storytelling.</li>
+      <li class="f">Grafik apa untuk menunjukkan <b>tren waktu</b>?</li>
+      <li class="f">Apa bedanya <b>temuan</b> dan <b>rekomendasi</b>?</li>
+      <li class="f">Kenapa judul grafik harus jelas?</li>
+    </ol>
+    <p class="sub f">Jawab lisan, tunjuk tangan, atau tulis di buku tulis.</p>
+  </section>
+
+  <!-- ============ 17 · REFLEKSI ============ -->
+  <section class="slide">
+    <p class="eyebrow">Refleksi Murid · 3 Menit</p>
+    <h2 class="title">Sebelum Kita Tutup</h2>
+    <div class="grid g3">
+      <div class="card f"><h3>1</h3><p>Bagian data mana yang paling sulit diubah jadi cerita? Kenapa?</p></div>
+      <div class="card gold f"><h3>2</h3><p>Apakah visualmu benar-benar membantu orang memahami pesan?</p></div>
+      <div class="card coral f"><h3>3</h3><p>Jika mengulang, apa yang akan kalian ubah?</p></div>
+    </div>
+    <p class="sub f">Tulis jawaban di buku — ini bagian dari penilaian kemandirian &amp; refleksi.</p>
+  </section>
+
+  <!-- ============ 18 · RANGKUMAN ============ -->
+  <section class="slide">
+    <p class="eyebrow">Rangkuman</p>
+    <h2 class="title">Poin Penting Hari Ini</h2>
+    <ul class="bullets">
+      <li class="f">Data storytelling = <b>Data + Narasi + Visual</b></li>
+      <li class="f">Berpikir komputasional: pecah → pola → abstraksi → algoritma</li>
+      <li class="f">Pilih grafik sesuai jenis datanya</li>
+      <li class="f">Alur: situasi → temuan → makna → rekomendasi</li>
+      <li class="f">Satu pesan utama lebih kuat daripada sepuluh</li>
+    </ul>
+  </section>
+
+  <!-- ============ 19 · TINDAK LANJUT ============ -->
+  <section class="slide">
+    <p class="eyebrow">Tindak Lanjut</p>
+    <h2 class="title">Setelah Pertemuan Ini</h2>
+    <div class="grid g2">
+      <div class="card f">
+        <h3>📌 Tugas</h3>
+        <p>• Kumpulkan data mentah kelompok<br>
+           • Buat 1 visual data + judul jelas<br>
+           • Tulis 1 kalimat rekomendasi</p>
+      </div>
+      <div class="card gold f">
+        <h3>📅 Pertemuan Berikutnya</h3>
+        <p>• Presentasi karya (5 menit / kelompok)<br>
+           • Sesi umpan balik antar teman<br>
+           • Penilaian rubrik</p>
+      </div>
+    </div>
+    <p class="sub f">Simpan file kalian di folder kelas atau Google Drive kelompok.</p>
+  </section>
+
+  <!-- ============ 20 · PENUTUP ============ -->
+  <section class="slide cover" style="align-items:flex-start">
+    <p class="eyebrow f">SMP NEGERI 19 KOTA BEKASI · TIM MGMP INFORMATIKA</p>
+    <h1 class="f" style="font-size:56px">Terima Kasih! 🙌</h1>
+    <div class="rule f"></div>
+    <p class="quote f">"Angka menunjukkan fakta,<br>cerita yang menggerakkan orang untuk bertindak."</p>
+    <div class="chips f">
+      <span class="chip">Informatika Kelas VIII</span>
+      <span class="chip gold">Analisis Data</span>
+    </div>
+  </section>
+
+</div>
+
+<div id="bar"></div>
+<div id="hint">Klik / tekan → untuk lanjut</div>
+<div id="hud">
+  <button id="btnPrev" title="Sebelumnya">◀</button>
+  <span id="counter">1 / 20</span>
+  <button id="btnNext" title="Berikutnya">▶</button>
+  <button id="btnFull" title="Layar penuh">⛶</button>
+</div>
+
+<script>
+(function(){
+  const stage   = document.getElementById('stage');
+  const slides  = Array.from(document.querySelectorAll('.slide'));
+  const bar     = document.getElementById('bar');
+  const counter = document.getElementById('counter');
+  const hint    = document.getElementById('hint');
+  let cur = 0;
+
+  /* ---- scaling 16:9 ---- */
+  function resize(){
+    const s = Math.min(window.innerWidth / 1280, (window.innerHeight - 70) / 720);
+    stage.style.transform = `translate(-50%,-50%) scale(${s})`;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  /* ---- render ---- */
+  function showSlide(i, revealAll){
+    cur = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === cur));
+    const frags = slides[cur].querySelectorAll('.f');
+    frags.forEach(f => f.classList.remove('show'));
+    if (revealAll) frags.forEach(f => f.classList.add('show'));
+    updateHud();
+  }
+
+  function updateHud(){
+    counter.textContent = (cur + 1) + ' / ' + slides.length;
+    bar.style.width = ((cur + 1) / slides.length * 100) + '%';
+    if (cur > 0) hint.style.opacity = 0;
+  }
+
+  /* ---- navigasi bertahap ---- */
+  function next(){
+    const pending = slides[cur].querySelectorAll('.f:not(.show)');
+    if (pending.length) { pending[0].classList.add('show'); }
+    else if (cur < slides.length - 1) { showSlide(cur + 1, false); }
+  }
+
+  function prev(){
+    const shown = slides[cur].querySelectorAll('.f.show');
+    if (shown.length) { shown[shown.length - 1].classList.remove('show'); }
+    else if (cur > 0) { showSlide(cur - 1, true); }
+  }
+
+  /* ---- kontrol ---- */
+  document.getElementById('btnNext').addEventListener('click', e => { e.stopPropagation(); next(); });
+  document.getElementById('btnPrev').addEventListener('click', e => { e.stopPropagation(); prev(); });
+  document.getElementById('btnFull').addEventListener('click', e => {
+    e.stopPropagation();
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  });
+
+  document.addEventListener('click', e => {
+    if (e.target.closest('#hud')) return;
+    next();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (['ArrowRight','ArrowDown',' ','PageDown','Enter'].includes(e.key)) { e.preventDefault(); next(); }
+    if (['ArrowLeft','ArrowUp','PageUp'].includes(e.key)) { e.preventDefault(); prev(); }
+    if (e.key === 'Home') showSlide(0, false);
+    if (e.key === 'End')  showSlide(slides.length - 1, true);
+    if (e.key.toLowerCase() === 'f') {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    }
+  });
+
+  showSlide(0, false);
+})();
+</script>
+</body>
+</html>
